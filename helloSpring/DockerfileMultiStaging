@@ -1,0 +1,31 @@
+# Base image with Maven and JDK 17
+FROM maven:3.8.4-openjdk-17-slim AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy the pom.xml and download dependencies (leverage Docker cache)
+
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
+
+# Copy the source code
+COPY src ./src
+
+# Build the application, skipping tests for faster build (optional)
+RUN mvn clean package -DskipTests
+
+# Use a minimal JRE base image for the runtime environment
+FROM eclipse-temurin:17-jre-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy the jar from the build stage
+COPY --from=build /app/target/*.jar ./app.jar
+
+# Expose the port the app will run on
+EXPOSE 8080
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]
