@@ -110,149 +110,41 @@ Arquivo .github/workflows/docker-image.yml:
 name: Docker Image CI
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Tag for the Docker image (e.g., commit ID or version)'
+        required: true
+        default: 'latest'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-    - name: Log in to DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java:latest
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-```
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./helloSpring
+          file: ./helloSpring/DockerfileMultiStaging  
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java:${{ github.event.inputs.image_tag }}
 
-## Cluster Kubernetes Local
-
-Depois de enviar a imagem para o DockerHub, iremos rodá-la em um cluster Kubernetes local.
-
-### 1. Instalação do Minikube ou Kind
-
-Instruções para instalar o Minikube ou Kind no seu ambiente local:
-
-- [Minikube](https://minikube.sigs.k8s.io/docs/start/)
-- [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
-
-### 2. Criação do Deployment e Service
-
-Criação dos recursos Kubernetes para rodar a aplicação e acessá-la localmente.
-
-#### Arquivo `deployment.yaml`:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: hello-world-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: hello-world
-  template:
-    metadata:
-      labels:
-        app: hello-world
-    spec:
-      containers:
-      - name: hello-world
-        image: <dockerhub-username>/hello-world-java:latest
-        ports:
-        - containerPort: 8080
-```
-
-#### Arquivo `service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: hello-world-service
-spec:
-  selector:
-    app: hello-world
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
-  type: NodePort
-```
-
-### 3. Aplicar Configurações no Kubernetes
-
-Execute os seguintes comandos para aplicar os arquivos no cluster:
-
-```bash
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
-```
-
-### 4. Acessar a Aplicação Localmente
-
-Dependendo do tipo de cluster Kubernetes que você está utilizando (Minikube ou Kind), o acesso à aplicação pode variar.
-
-#### A. Minikube
-
-Se estiver usando **Minikube**, utilize o comando abaixo para expor o serviço e abrir o navegador automaticamente com o IP correto:
-
-```bash
-minikube service hello-world-service
-```
-
-Isso abrirá a aplicação no navegador no endereço correto.
-
-#### B. Kind
-
-Se estiver usando **Kind**, você pode expor o serviço manualmente utilizando **port-forward**. Execute o seguinte comando para redirecionar a porta 8080 do serviço para a porta 8080 no seu host local:
-
-```bash
-kubectl port-forward service/hello-world-service 8080:8080
-```
-
-Acesse a aplicação no navegador ou via `curl`:
-
-```bash
-http://localhost:8080
-```
-
-#### Verificando a Porta do NodePort
-
-Se você deseja verificar qual porta foi exposta pelo Kubernetes, use o seguinte comando para visualizar o mapeamento:
-
-```bash
-kubectl get svc hello-world-service
-```
-
-A saída mostrará algo como:
-
-```
-NAME                  TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
-hello-world-service   NodePort   10.96.54.1      <none>        8080:XXXX/TCP    5m
-```
-
-Substitua `XXXX` pela porta que foi exposta e acesse a aplicação no navegador:
-
-```bash
-http://<minikube-ip>:XXXX
 ```
 
 ### Conclusão
