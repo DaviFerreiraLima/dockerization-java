@@ -207,6 +207,13 @@ jobs:
 
 Essa pipeline automatiza o processo de construção e envio de imagens Docker, permitindo que desenvolvedores integrem facilmente suas aplicações com o Docker Hub.
 
+### Links Úteis para entender melhor o conteúdo
+
+- [Docker: Arquitetura Docker](https://medium.com/@IgorDuarte17/arquitetura-docker-c76cb14ffac6)
+- [Docker: Entendendo a Arquitetura do Docker](https://medium.com/@ravipatel.it/understanding-docker-architecture-a-comprehensive-guide-5ce9129df1a4)
+- [Java: Implantando um Projeto Java Simples no Docker](https://medium.com/@kalimitalha8/deploying-a-simple-java-project-to-docker-a-step-by-step-guide-da59588b481c)
+- [Otimização de Imagem: Otimizando o Tamanho de Imagens Docker Java](https://medium.com/@RoussiAbdelghani/optimizing-java-base-docker-images-size-from-674mb-to-58mb-c1b7c911f622)
+
 ### Conclusão
 
 Neste mini curso, cobrimos o processo completo desde a criação de uma aplicação Java, passando pela sua containerização com Docker, até a implementação em um cluster Kubernetes local. O pipeline de CI/CD com GitHub Actions facilita a automação do processo de build e publicação no DockerHub.
