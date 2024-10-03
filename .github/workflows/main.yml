@@ -32,7 +32,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./helloSpring
-          file: ./helloSpring/DockerfileMultiStaging  # Caminho correto para o Dockerfile
-          platforms: linux/amd64,linux/arm64
+          file: ./helloSpring/DockerfileMultiStaging  
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java:${{ github.event.inputs.image_tag }}
