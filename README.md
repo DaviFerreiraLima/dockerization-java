@@ -100,13 +100,13 @@ CMD ["java", "-jar", "app.jar"]
 
 
 
-## Pipeline com GitHub Actions
+# Pipeline com GitHub Actions
 
 A seguir, um exemplo de pipeline que constrói a imagem da aplicação e a envia para o DockerHub automaticamente.
 
-Arquivo .github/workflows/docker-image.yml:
+## Arquivo `.github/workflows/docker-image.yml`
 
-``` yaml
+```yaml
 name: Docker Image CI
 
 on:
@@ -116,27 +116,75 @@ on:
         description: 'Tag for the Docker image (e.g., commit ID or version)'
         required: true
         default: 'latest'
+```
 
+### Explicação
+- **name**: Nome da ação (`Docker Image CI`), que aparece nas interfaces do GitHub.
+- **on**: Especifica o evento que aciona a execução da pipeline.
+  - **workflow_dispatch**: Permite que a pipeline seja iniciada manualmente com a opção de fornecer uma entrada.
+    - **inputs**: Define as entradas que podem ser fornecidas ao acionar a ação.
+      - **image_tag**: Uma entrada obrigatória que permite ao usuário definir a tag para a imagem Docker, com um valor padrão de `latest`.
+
+## Jobs
+
+```yaml
 jobs:
   build:
     runs-on: ubuntu-latest
+```
 
-    steps:
+### Explicação
+- **jobs**: Define os trabalhos a serem executados na pipeline.
+  - **build**: Nome do trabalho que realiza a construção da imagem Docker.
+    - **runs-on**: Especifica o ambiente onde o trabalho será executado, neste caso, a última versão do Ubuntu.
+
+## Etapas
+
+### 1. Checkout do Código
+
+```yaml
       - name: Checkout code
         uses: actions/checkout@v3
+```
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+#### Explicação
+- **name**: Nome da etapa (`Checkout code`).
+- **uses**: Utiliza a ação oficial do GitHub para realizar o checkout do código do repositório.
+- Essa etapa garante que o código-fonte mais recente esteja disponível para o trabalho.
 
+### 2. Configuração do Docker Buildx
+
+```yaml
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+```
 
+#### Explicação
+- **name**: Nome da etapa (`Set up Docker Buildx`).
+- **uses**: Utiliza a ação para configurar o Docker Buildx, uma ferramenta que facilita a construção de imagens Docker.
+- Permite a criação de imagens para várias plataformas e otimiza o processo de build.
+
+### 3. Login no Docker Hub
+
+```yaml
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+```
 
+#### Explicação
+- **name**: Nome da etapa (`Login to Docker Hub`).
+- **uses**: Utiliza a ação para realizar login no Docker Hub.
+- **with**: Fornece as credenciais necessárias para autenticação.
+  - **username**: Nome de usuário do Docker Hub, armazenado como um segredo.
+  - **password**: Token de acesso ao Docker Hub, também armazenado como um segredo.
+- Essa etapa garante que a pipeline tenha permissão para enviar a imagem construída para o Docker Hub.
+
+### 4. Construir e Enviar a Imagem
+
+```yaml
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -144,8 +192,20 @@ jobs:
           file: ./helloSpring/DockerfileMultiStaging  
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java:${{ github.event.inputs.image_tag }}
-
 ```
+
+#### Explicação
+- **name**: Nome da etapa (`Build and push`).
+- **uses**: Utiliza a ação para construir e enviar a imagem Docker.
+- **with**: Define as opções para a construção da imagem.
+  - **context**: Diretório que contém o código-fonte e os arquivos necessários para a construção da imagem (`./helloSpring`).
+  - **file**: Caminho para o Dockerfile a ser utilizado (`./helloSpring/DockerfileMultiStaging`).
+  - **push**: Define se a imagem deve ser enviada ao Docker Hub (`true`).
+  - **tags**: Especifica as tags da imagem, combinando o nome de usuário do Docker Hub e a tag fornecida pelo usuário, utilizando a entrada `image_tag`.
+
+---
+
+Essa pipeline automatiza o processo de construção e envio de imagens Docker, permitindo que desenvolvedores integrem facilmente suas aplicações com o Docker Hub.
 
 ### Conclusão
 
