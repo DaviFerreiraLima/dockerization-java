@@ -1,6 +1,6 @@
-# Mini Curso: Docker, Kubernetes e Pipelines para Desenvolvedores
+# Mini Curso: Docker, Kubernetes e Pipelines
 
-Este mini curso visa ensinar conceitos básicos de Docker, Kubernetes e a criação de pipelines, com foco em desenvolvedores. Ao longo do curso, iremos abordar o empacotamento de uma aplicação Java, containerização com Docker (incluindo Multi-stage builds), envio de imagens para o DockerHub usando GitHub Actions e, por fim, a criação de um cluster Kubernetes local para a implementação da aplicação.
+Este mini curso visa ensinar conceitos básicos de Docker, Kubernetes e a criação de pipelines. Ao longo do curso, iremos abordar o empacotamento de uma aplicação Java, containerização com Docker (incluindo Multi-stage builds), envio de imagens para o DockerHub usando GitHub Actions e, por fim, a criação de um cluster Kubernetes local para a implementação da aplicação.
 
 ## Estrutura do Curso
 
