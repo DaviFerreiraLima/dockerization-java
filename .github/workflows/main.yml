@@ -25,10 +25,18 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push with DockerfileMultiStaging
         uses: docker/build-push-action@v6
         with:
           context: ./helloSpring
-          file: ./helloSpring/DockerfileMultiStaging  
+          file: ./helloSpring/DockerfileMultiStaging
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java:${{ github.event.inputs.image_tag }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java-multistaging:${{ github.event.inputs.image_tag }}
+
+      - name: Build and push with DockerfileOneStag
+        uses: docker/build-push-action@v6
+        with:
+          context: ./helloSpring
+          file: ./helloSpring/DockerfileOneStag
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-java-onestag:${{ github.event.inputs.image_tag }}
